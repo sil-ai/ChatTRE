@@ -71,11 +71,14 @@ def add_text(state, text):
         # Get the context from chroma
         results = collection.query(
             query_texts=[text],
-            n_results=3
+            n_results=5
         )
 
         # Prompt.
-        context = results['documents'][0][0]
+        # context = results['documents'][0][0]
+        context = '\n'.join(results['documents'][0])
+
+        print(f'{context=}')
         qa_prompt = (
             f'read the paragraph below and answer the question, if the question cannot be answered based on the context alone, write "sorry i had trouble answering this question, based on the information i found\n'
             f"\n"
@@ -88,7 +91,7 @@ def add_text(state, text):
         # Answer the question
         response = co.generate(model='xlarge',
                             prompt=qa_prompt,
-                            max_tokens=100,
+                            max_tokens=300,
                             temperature=0.3)
         
         # format the answer
@@ -123,15 +126,16 @@ def add_text(state, text):
     state = state + [(text, completion)]
     return state, state
 
+if __name__ == "__main__":
 
-with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(elem_id="chatbot")
-    state = gr.State([])
-    
-    with gr.Row():
-        txt = gr.Textbox(show_label=False, placeholder="Enter text and press enter").style(container=False)
-            
-    txt.submit(add_text, [state, txt], [state, chatbot])
+    with gr.Blocks() as demo:
+        chatbot = gr.Chatbot(elem_id="chatbot")
+        state = gr.State([])
+        
+        with gr.Row():
+            txt = gr.Textbox(show_label=False, placeholder="Enter text and press enter").style(container=False)
+                
+        txt.submit(add_text, [state, txt], [state, chatbot])
 
-            
-demo.launch()
+                
+    demo.launch()
