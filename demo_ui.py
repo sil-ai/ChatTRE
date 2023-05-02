@@ -21,10 +21,10 @@ def handle_message(message):
     incoming_message = "You: " + message
     emit('message', incoming_message)
 
-    response = requests.post(url, json={"text": message, "state": session.get('state')})
+    response = requests.post(url, json={"text": message, "chat_id": session.get('chat_id', '')})
     print(response.json())
     outgoing_message = "Bot: " + response.json()['text']
-    session['state'] = response.json()['state']
+    session['chat_id'] = response.json()['chat_id']
     emit('message', outgoing_message)
 
 if __name__ == '__main__':
