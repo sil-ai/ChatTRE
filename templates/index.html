@@ -1,14 +1,42 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Chat Demo</title>
+        <title>Assistant.Bible Demo</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <style>
+            .bot-response {
+                text-align: left;
+                background-color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            .bot-message {
+                color: black;
+            }
+            .user-response {
+                text-align: right;
+                display: inline-block;
+                background-color: #dcf8c6;
+                padding: 5px 10px;
+                color: black;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            .bot-name {
+                color: #53bdeb;
+                padding-bottom: 3px;
+            }
+            .well {
+                text-align: right;
+            }
+            </style>
       </head>
       <body>
         <div class="container">
           <div class="row">
             <div class="col-md-8 col-md-offset-2">
-              <h1 class="text-center">Chat Demo</h1>
+              <h1 class="text-center">Assistant.Bible Demo</h1>
               <div class="well" id="messages"></div>
               <form class="form-inline" action="" method="post">
                 <div class="form-group">
@@ -16,21 +44,46 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Send</button>
               </form>
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="button" id="reset_btn" class="btn btn-primary" style="margin-top: 10px">Reset</button>
+                </div>
             </div>
+        </div>
           </div>
+          
         </div>
         <script src="//code.jquery.com/jquery-1.11.1.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
         <script>
           var socket = io.connect('http://' + document.domain + ':' + location.port);
           socket.on('message', function(data) {
-            $('#messages').append('<div>' + data + '</div>');
+            var userType = data.startsWith('Bot: ') ? 'bot-message' : 'user-message';
+            if (userType == 'bot-message') {
+                $('#messages').append('<div class="bot-response"><div class="bot-name">Assistant</div><div class="bot-message">' + data.replace('Bot: ', '').replace(' (Sources:', '\n\n(Sources:') + '</div></div>');
+            }
+            else
+            {
+                $('#messages').append('<div class="user-response"><div class="user-message">' + data + '</div></div>');
+            }
           });
+          // Handle reset event from the server
+      
           $('form').submit(function(event) {
             socket.emit('message', $('#message').val());
             $('#message').val('').focus();
             event.preventDefault();
           });
+          document.getElementById('reset_btn').addEventListener("click", function(event) {
+            socket.emit('reset');  // Emit a reset event to the server
+        });
+        socket.on('reset', function() {
+            $('#messages').empty(); // Clear the chatbox
+
+
+        });
+    
+        
         </script>
       </body>
       

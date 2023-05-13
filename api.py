@@ -119,7 +119,7 @@ def add_text(text, state):
     context = '['
     for i in range(len(results['documents'][0])):
         print(results['metadatas'][0][i])
-        context += "{source:" + results['metadatas'][0][i]['citation'] + ', text: ' + results['documents'][0][i] + '}' + '\n'
+        context += "{source:" + results['metadatas'][0][i]['citation'] + ', text: ' + results['documents'][0][i] + '}' + ','
     context += ']' + '\n'
     print(f'{context=}')
 
@@ -191,7 +191,7 @@ class TextOut(BaseModel):
 @app.post("/ask", response_model=TextOut)
 def ask(input: TextIn):
     print(f'{input=}')
-    if input.chat_id is None:
+    if input.chat_id is None or input.chat_id == '':
         input.chat_id = str(uuid.uuid4())
         state_dict[input.chat_id] = []
 
@@ -199,3 +199,4 @@ def ask(input: TextIn):
     print(f'{text=}')
     print(f'{state_dict[input.chat_id]=}')
     return {'text': text, 'chat_id': input.chat_id}
+
